@@ -1,0 +1,46 @@
+name: conch_ihc_credit_206_10class_inferred_as_neg
+output_dir: outputs/pathology_credit
+global_seed: 20260830
+
+data:
+  patients_json: data/patients_206.json
+  data_root: data
+  feature_key: features
+  feature_dim: 768
+  # Force every italic/inferred IHC entry to 0 (NEG). The corresponding mask is
+  # also 0; because ihc_mask_as_feature=false, inferred status is not exposed as
+  # a classifier feature. Regular-font POS/NEG entries retain their original value.
+  ihc_policy: mask_inferred
+  exclude_tumor_flag_zero: false
+  split_file: splits/pathology_5fold.json
+  n_splits: 5
+  # Keep the exact same patient folds as the all-IHC experiment.
+  eval_fraction: 0.125
+  split_seed: 20260830
+  max_train_patches: 2048
+  max_eval_patches: 0
+
+model:
+  projection_dim: 256
+  attention_dim: 128
+  ihc_hidden_dim: 32
+  fusion_dim: 128
+  patch_dropout: 0.1
+  fusion_dropout: 0.2
+  l2: 0.0001
+  ihc_mask_as_feature: false
+  teacher_use_ihc: true
+  student_use_ihc: true
+
+training:
+  teacher_seeds: [101, 102, 103, 104, 105]
+  teacher_epochs: 100
+  student_epochs: 100
+  batch_size: 2
+  eval_batch_size: 1
+  teacher_learning_rate: 0.0003
+  student_learning_rate: 0.0003
+  distillation_temperature: 2.5
+  patience: 15
+  class_weighting: balanced
+  gradient_clip_norm: 5.0
